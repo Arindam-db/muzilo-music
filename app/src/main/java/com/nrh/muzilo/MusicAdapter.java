@@ -7,19 +7,17 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.nrh.muzilo.R;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHolder> {
 
-    private List<Music> musicList;
-    private List<Music> filteredList;
+    private final List<MusicData> musicDataList;
+    private final List<MusicData> filteredList;
 
-    public MusicAdapter(List<Music> musicList) {
-        this.musicList = musicList;
-        this.filteredList = new ArrayList<>(musicList); // Initialize filtered list
+    public MusicAdapter(List<MusicData> musicDataList) {
+        this.musicDataList = musicDataList;
+        this.filteredList = new ArrayList<>(musicDataList); // Initialize filtered list
     }
 
     @NonNull
@@ -31,9 +29,9 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
 
     @Override
     public void onBindViewHolder(@NonNull MusicViewHolder holder, int position) {
-        Music music = filteredList.get(position);
-        holder.title.setText(music.getTitle());
-        holder.artist.setText(music.getArtist());
+        MusicData musicData = filteredList.get(position);
+        holder.title.setText(musicData.getTitle());
+        holder.artist.setText(musicData.getArtist());
     }
 
     @Override
@@ -44,12 +42,12 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
     public void filter(String query) {
         filteredList.clear();
         if (query.isEmpty()) {
-            filteredList.addAll(musicList); // Show all items if query is empty
+            filteredList.addAll(musicDataList); // Show all items if query is empty
         } else {
-            for (Music music : musicList) {
-                if (music.getTitle().toLowerCase().contains(query.toLowerCase()) ||
-                        music.getArtist().toLowerCase().contains(query.toLowerCase())) {
-                    filteredList.add(music);
+            for (MusicData musicData : musicDataList) {
+                if (musicData.getTitle().toLowerCase().contains(query.toLowerCase()) ||
+                        musicData.getArtist().toLowerCase().contains(query.toLowerCase())) {
+                    filteredList.add(musicData);
                 }
             }
         }

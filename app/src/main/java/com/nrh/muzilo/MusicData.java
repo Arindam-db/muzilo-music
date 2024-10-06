@@ -1,12 +1,12 @@
 package com.nrh.muzilo;
 
 
-public class Music {
+public class MusicData {
     private String title;
     private String artist;
     private String path;
 
-    public Music(String title, String artist, String path) {
+    public MusicData(String title, String artist, String path) {
         this.title = title;
         this.artist = artist;
         this.path = path;

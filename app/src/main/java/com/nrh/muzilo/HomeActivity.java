@@ -1,9 +1,17 @@
 package com.nrh.muzilo;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -15,7 +23,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class HomeActivity extends AppCompatActivity {
 
-    private BottomNavigationView bottomNavigationView;@Override
+    private BottomNavigationView bottomNavigationView;
+    private static final int REQUEST_PERMISSION = 1;
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
@@ -26,36 +37,55 @@ public class HomeActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Setup bottom navigation and fragments
+        // Check and request permissions based on Android version (SDK 33+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_MEDIA_AUDIO},
+                        REQUEST_PERMISSION);
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        REQUEST_PERMISSION);
+            }
+        }
+// End of permission code
+
+
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-
-            if (itemId == R.id.navigation_home) {
-                loadFragment(new HomeFragment(), false);
-            } else if (itemId == R.id.navigation_playlists) {
-                loadFragment(new LibraryFragment(), false);
-            } else { // nav profile
-                loadFragment(new EqualizerFragment(), false);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @SuppressLint("NonConstantResourceId")
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId() == R.id.navigation_home) {
+                    loadFragment(new HomeFragment());
+                    return true;
+                } else if (item.getItemId() == R.id.navigation_playlists) {
+                    loadFragment(new PlaylistFragment());
+                    return true;
+                } else if (item.getItemId() == R.id.navigation_equalizer) {loadFragment(new EqualizerFragment());
+                    return true;
+                }
+                return false;
             }
+        });
 
-            return true;});
+        // Load the initial fragment (e.g., HomeFragment)
+        loadFragment(new HomeFragment());
 
-        // Load initial fragment (Home) after setting the listener
-        loadFragment(new HomeFragment(), true);
+
+
     }
 
-    // Method to load fragments into the FrameLayout
-    private void loadFragment(Fragment fragment, boolean isAppInitialised) {
+    private void loadFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        if (isAppInitialised) {
-            fragmentTransaction.add(R.id.frame_layout, fragment);
-        } else {
-            fragmentTransaction.replace(R.id.frame_layout, fragment);
-        }
-        fragmentTransaction.commit();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.frame_layout, fragment); // Replace "frame_layout" with your FrameLayout's ID
+        transaction.commit();
     }
 }
